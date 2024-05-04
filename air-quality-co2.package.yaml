@@ -1,0 +1,148 @@
+sensor:
+  - platform: template
+    sensors:
+      co2_max_difference_from_mean:
+        friendly_name: "CO2 Max Difference from Mean"
+        value_template: "{{ states('sensor.co2_max_hvac_connected') | int - states('sensor.co2_average') | int }}"
+        unit_of_measurement: ppm
+        icon_template: mdi:molecule-co2
+  - platform: derivative
+    source: sensor.co2_max_difference_from_mean
+    name: CO2 Denormalization Rate
+    round: 0
+    unit_time: h
+    time_window: "00:05:00"
+  - platform: template
+    sensors:
+      co2_normalization_rate:
+        friendly_name: "CO2 Normalization Rate"
+        value_template: "{{ int(states.sensor.co2_denormalization_rate.state) * -1  }}"
+        unit_of_measurement: "ppm/h"
+        icon_template: mdi:molecule-co2
+  - platform: group
+    name: CO2 Average
+    type: mean
+    unit_of_measurement: ppm
+    entities:
+      - sensor.basement_air_1_co2
+      - sensor.master_bedroom_air_1_co2
+  - platform: group
+    name: CO2 Max HVAC Connected
+    type: max
+    unit_of_measurement: ppm
+    entities:
+      - sensor.basement_air_1_co2
+      - sensor.master_bedroom_air_1_co2
+
+input_number:
+  co2_ventilation_off_setpoint:
+    name: CO2 Ventilation Off Setpoint
+    initial: 600
+    min: 400
+    max: 2000
+    step: 50
+    mode: box
+    unit_of_measurement: ppm
+  co2_ventilation_on_setpoint:
+    name: CO2 Ventilation On Setpoint
+    initial: 1000
+    min: 500
+    max: 2000
+    step: 50
+    mode: box
+    unit_of_measurement: ppm
+  co2_ventilation_normalization_rate_minimum:
+    name: CO2 Ventilation Minimum Rate
+    initial: 150
+    min: 10
+    max: 20000
+    step: 10
+    mode: box
+    unit_of_measurement: ppm/h
+  co2_delta_ventilation_off_setpoint:
+    name: CO2 Δ Ventilation Off Setpoint
+    initial: 30
+    max: 500
+    min: 0
+    step: 10
+    mode: box
+    unit_of_measurement: ppm
+
+input_boolean:
+  co2_ventilation_running:
+    name: CO2 Ventilation Running
+    initial: false
+    icon: mdi:molecule-co2
+
+automation:
+  - alias: CO2 Circulate Start
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.co2_max_hvac_connected
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+        above: input_number.co2_ventilation_on_setpoint
+    condition:
+      - condition: state
+        entity_id: climate.downstairs
+        attribute: fan_mode
+        state: "off"
+    action:
+      - service: climate.set_fan_mode
+        metadata: {}
+        data:
+          fan_mode: "on"
+        target:
+          device_id: 6156c6b208c71acd7d82cbd89f3276fd
+      - service: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.co2_ventilation_running
+        data: {}
+    mode: single
+  - alias: CO2 Circulate Stop
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.co2_max_hvac_connected
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+        below: input_number.co2_ventilation_off_setpoint
+      - platform: numeric_state
+        entity_id:
+          - sensor.co2_max_difference_from_mean
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+        below: input_number.co2_delta_ventilation_off_setpoint
+      - platform: numeric_state
+        entity_id:
+          - sensor.co2_normalization_rate
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+        below: input_number.co2_ventilation_normalization_rate_minimum
+    condition:
+      - condition: state
+        entity_id: input_boolean.co2_ventilation_running
+        state: "on"
+    action:
+      - service: climate.set_fan_mode
+        metadata: {}
+        data:
+          fan_mode: "off"
+        target:
+          device_id: 6156c6b208c71acd7d82cbd89f3276fd
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.co2_ventilation_running
+        data: {}
+    mode: single
