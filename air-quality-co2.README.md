@@ -1,5 +1,11 @@
 # NOTE: All of the config contained here is for reference. The updated config is in the yaml files that are siblings to this file. This write up is to show my thought process for each of the items added to the dashboard.
 
+After setting up one of my AIR-1s in my bedroom, I realized that I was sleeping in some poor quality air (upwards of 2200 ppm CO2). I made a set of graphs and automations to display and fix the CO2 concentrations in the house.
+
+I use 2 Mini Graph Cards for the charts. Mini Graph cards is available in the HACS addon store as a lovelace frontend element and on github https://github.com/kalkih/mini-graph-card
+
+Most of the concepts here can be translated to other measurable attributes like temperature and humidity. VOCs and PM may be similar but will not be the same since filters in HVAC systems tend to remove those and this is designed to control balancing and distribution, not removal.
+
 The `HVAC Controllable CO2 Concentrations` chart at the top shows the status of my HVAC fan combined with the status of 2 sensor groups:
 * The maximum reading from all CO2 sensors in my conditioned space
 * The average reading from all CO2 sensors in my conditioned space
