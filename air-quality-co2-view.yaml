@@ -21,72 +21,134 @@ cards:
   - type: custom:mini-graph-card
     name: HVAC Controllable CO2 Concentrations
     entities:
-      - entity: sensor.co2_max_hvac_connected
-        name: Max
-        show_state: true
-        state_adaptive_color: true
       - entity: sensor.co2_average
         name: Average
         show_state: true
         state_adaptive_color: true
-      - color: '#FFFFFF'
+      - entity: sensor.co2_max_hvac_connected
+        name: Max
+        show_state: true
+        state_adaptive_color: true
+      - entity: input_number.co2_ventilation_on_setpoint
+        smoothing: false
+        fixed_value: true
+        color: "#FFFFFF"
+        line_width: 1
+        show_fill: false
+        show_legend: false
+        show_points: false
+      - entity: input_number.co2_ventilation_off_setpoint
+        smoothing: false
+        fixed_value: true
+        color: "#FFFFFF"
+        line_width: 1
+        show_fill: false
+        show_legend: false
+        show_points: false
+      - entity: sensor.co2_max_sensor_name
+        show_state: true
+        show_graph: false
+        show_legend: false
+      - color: "#FFFFFF"
         entity: sensor.hvac_fan_integer
         name: HVAC Ventilation
         show_line: false
         show_points: false
-        y_axis: secondary
+        y_axis: tertiary
         smoothing: false
+        show_legend: false
     color_thresholds:
       - value: 400
-        color: '#5eff33'
+        color: "#5eff33"
       - value: 600
-        color: '#33d4ff'
+        color: "#33d4ff"
       - value: 1000
-        color: '#f39c12'
+        color: "#f39c12"
       - value: 1500
-        color: '#d35400'
+        color: "#d35400"
       - value: 2000
-        color: '#c0392b'
+        color: "#c0392b"
     show:
       labels: true
     decimals: 0
     hours_to_show: 24
     points_per_hour: 4
     update_interval: 15
-    line_width: 2
+    line_width: 1
     animate: true
+    state_map:
+      - value: Master Bedroom AIR-1 CO2
+        label: Master Bedroom
+      - value: Basement AIR-1 CO2
+        label: Basement
   - type: custom:mini-graph-card
     entities:
       - entity: sensor.co2_max_difference_from_mean
         state_adaptive_color: true
-      - color: '#AAAAAA'
+      - entity: sensor.zero_line
+        smoothing: false
+        fixed_value: true
+        line_width: 1
+        show_fill: false
+        show_legend: false
+        color: "#AAAAAA"
+        y_axis: secondary
+        show_points: false
+      - color: "#AAAAAA"
         entity: sensor.co2_normalization_rate
         show_state: true
         state_adaptive_color: true
-      - color: '#FFFFFF'
+        y_axis: secondary
+        show_fill: false
+      - color: "#32e3e0"
+        entity: sensor.co2_air_quality_improvement_rate
+        show_state: true
+        state_adaptive_color: true
+        y_axis: secondary
+        show_fill: false
+      - entity: input_number.co2_delta_ventilation_off_setpoint
+        smoothing: false
+        fixed_value: true
+        line_width: 1
+        show_fill: false
+        show_legend: false
+        show_points: false
+      - entity: input_number.co2_ventilation_normalization_rate_minimum
+        smoothing: false
+        fixed_value: true
+        color: "#FFFFFF"
+        line_width: 1
+        show_fill: false
+        y_axis: secondary
+        show_legend: false
+        show_points: false
+      - color: "#FFFFFF"
         entity: sensor.hvac_fan_integer
         name: HVAC Ventilation
         show_line: false
         show_points: false
-        y_axis: secondary
         smoothing: false
+        y_axis: tertiary
+        show_legend: false
     color_thresholds:
       - value: 50
-        color: '#5eff33'
+        color: "#5eff33"
       - value: 100
-        color: '#33d4ff'
+        color: "#33d4ff"
       - value: 200
-        color: '#f39c12'
+        color: "#f39c12"
       - value: 400
-        color: '#d35400'
+        color: "#d35400"
       - value: 1000
-        color: '#c0392b'
+        color: "#c0392b"
     show:
       labels: true
+      labels_secondary: true
     hours_to_show: 12
     points_per_hour: 4
     update_interval: 15
-    line_width: 2
+    lower_bound: 0
+    line_width: 1
     animate: true
   - show_name: true
     show_icon: true

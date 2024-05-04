@@ -1,6 +1,11 @@
 sensor:
   - platform: template
     sensors:
+      zero_line:
+        friendly_name: Zero Line
+        value_template: '0'
+  - platform: template
+    sensors:
       co2_max_difference_from_mean:
         friendly_name: "CO2 Max Difference from Mean"
         value_template: "{{ states('sensor.co2_max_hvac_connected') | int - states('sensor.co2_average') | int }}"
@@ -17,6 +22,19 @@ sensor:
       co2_normalization_rate:
         friendly_name: "CO2 Normalization Rate"
         value_template: "{{ int(states.sensor.co2_denormalization_rate.state) * -1  }}"
+        unit_of_measurement: "ppm/h"
+        icon_template: mdi:molecule-co2
+  - platform: derivative
+    source: sensor.co2_average
+    name: CO2 Air Quality Deterioration
+    round: 0
+    unit_time: h
+    time_window: "00:05:00"
+  - platform: template
+    sensors:
+      co2_air_quality_improvement_rate:
+        friendly_name: "CO2 Air Quality Improvement Rate"
+        value_template: "{{ int(states.sensor.co2_air_quality_deterioration.state) * -1  }}"
         unit_of_measurement: "ppm/h"
         icon_template: mdi:molecule-co2
   - platform: group
